@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SendGrid Mailer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>SendGrid Mailer</h1>
+        <p class="subtitle">Send HTML emails with embedded images and attachments</p>
+      </header>
+
+      <main class="dashboard">
+        <form id="emailForm">
+          <!-- Step 1: Recipients -->
+          <section class="card step-card">
+            <div class="step-header">
+              <span class="step-number">1</span>
+              <h2>Recipients</h2>
+              <span class="step-required">Required</span>
+            </div>
+            <p class="step-description">Choose how to add email recipients</p>
+            
+            <div class="tabs">
+              <button type="button" class="tab-btn active" data-tab="manual">Manual Entry</button>
+              <button type="button" class="tab-btn" data-tab="csv">Upload CSV</button>
+              <div class="tab-spacer"></div>
+              <div id="recipientCount" class="badge"></div>
+            </div>
+
+            <div id="manualTab" class="tab-panel active">
+              <div class="field-group">
+                <label class="label">Email Addresses</label>
+                <div class="input-wrapper">
+                  <textarea id="recipientsText" rows="5" placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"></textarea>
+                  <button type="button" class="btn-clear" id="clearRecipientsText" title="Clear emails">×</button>
+                </div>
+                <small>Enter one email per line, or separate with commas or semicolons</small>
+              </div>
+            </div>
+
+            <div id="csvTab" class="tab-panel">
+              <div class="field-group">
+                <label class="label">CSV File</label>
+                <div class="input-wrapper">
+                  <input id="recipientsFile" type="file" accept=".csv,.txt" />
+                  <button type="button" class="btn-clear" id="clearRecipientsFile" title="Clear CSV file">×</button>
+                </div>
+                <small>Upload a CSV or text file containing email addresses (one per line)</small>
+                <div id="csvPreview" class="info-box"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 2: Subject -->
+          <section class="card step-card">
+            <div class="step-header">
+              <span class="step-number">2</span>
+              <h2>Email Subject</h2>
+              <span class="step-required">Required</span>
+            </div>
+            <p class="step-description">Enter the subject line for your email</p>
+            
+            <div class="field-group">
+              <div class="input-wrapper">
+                <input id="subject" type="text" placeholder="Enter email subject..." required />
+                <button type="button" class="btn-clear" id="clearSubject" title="Clear subject">×</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 3: Template Selection -->
+          <section class="card step-card">
+            <div class="step-header">
+              <span class="step-number">3</span>
+              <h2>Email Template</h2>
+              <span class="step-optional">Optional</span>
+            </div>
+            <p class="step-description">Load a template or create HTML content manually</p>
+            
+            <div class="tabs">
+              <button type="button" class="tab-btn active" data-tab="serverTpl">From Server</button>
+              <button type="button" class="tab-btn" data-tab="localTpl">From Computer</button>
+              <button type="button" class="tab-btn" data-tab="manualHtml">Manual HTML</button>
+            </div>
+
+            <!-- Server Template Tab -->
+            <div id="serverTemplateTab" class="tab-panel active">
+              <div class="field-group">
+                <label class="label">Select Template</label>
+                <div class="input-group">
+                  <select id="templateSelect">
+                    <option value="">Choose a template...</option>
+                  </select>
+                  <button type="button" id="loadTemplateBtn" class="btn-secondary">Load Template</button>
+                </div>
+                <small>Templates are stored in the <code>templates/</code> folder on the server</small>
+              </div>
+            </div>
+
+            <!-- Local Template Tab -->
+            <div id="localTemplateTab" class="tab-panel">
+              <div class="field-group">
+                <label class="label">HTML File</label>
+                <div class="input-wrapper">
+                  <input id="localTemplateFile" type="file" accept=".html,.htm" />
+                  <button type="button" class="btn-clear" id="clearLocalTemplateFile" title="Clear HTML file">×</button>
+                </div>
+                <small>Select an HTML file from your computer</small>
+                <div id="templateFileInfo" class="info-box"></div>
+              </div>
+
+              <div class="field-group">
+                <label class="label">Images for Embedding</label>
+                <div class="input-wrapper">
+                  <input id="imagesFolder" type="file" multiple accept="image/*" />
+                  <button type="button" class="btn-clear" id="clearImagesFolder" title="Clear images">×</button>
+                </div>
+                <small>Select image files that match the filenames referenced in your HTML</small>
+                <div id="imagesFolderInfo" class="info-box"></div>
+                <div id="imageMatchingStatus" class="image-matching-status"></div>
+                <div class="button-group">
+                  <button type="button" id="embedImagesBtn" class="btn-secondary" disabled>
+                    <span>🔗</span> Embed Images into HTML
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual HTML Tab -->
+            <div id="manualHtmlTab" class="tab-panel">
+              <div class="field-group">
+                <label class="label">HTML Content</label>
+                <small>Paste or type your HTML content directly</small>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 4: HTML Content -->
+          <section class="card step-card">
+            <div class="step-header">
+              <span class="step-number">4</span>
+              <h2>HTML Content</h2>
+              <span class="step-required">Required</span>
+            </div>
+            <p class="step-description">Edit your email HTML content. Load a template above or paste HTML here.</p>
+            
+            <div class="field-group">
+              <div class="input-wrapper">
+                <textarea id="htmlContent" rows="12" placeholder="Your HTML content will appear here after loading a template, or paste HTML directly..."></textarea>
+                <button type="button" class="btn-clear" id="clearHtmlContent" title="Clear HTML content">×</button>
+              </div>
+              <div id="extractedImages" class="info-box"></div>
+            </div>
+          </section>
+
+          <!-- Step 5: Attachments -->
+          <section class="card step-card">
+            <div class="step-header">
+              <span class="step-number">5</span>
+              <h2>Attachments</h2>
+              <span class="step-optional">Optional</span>
+            </div>
+            <p class="step-description">Add file attachments to your email</p>
+            
+            <div class="field-group">
+              <div class="input-wrapper">
+                <input id="attachments" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.zip" />
+                <button type="button" class="btn-clear" id="clearAttachments" title="Clear attachments">×</button>
+              </div>
+              <small>Select files to attach (images, PDFs, documents, etc.)</small>
+              <div id="fileList" class="file-list"></div>
+            </div>
+          </section>
+
+          <!-- Actions -->
+          <section class="actions-card">
+            <div class="actions">
+              <button type="button" id="previewBtnBottom" class="btn-secondary">
+                <span>👁️</span> Preview HTML
+              </button>
+              <button type="submit" id="sendBtn" class="btn-primary">
+                <span id="sendBtnText">📧 Send Email</span>
+                <span id="sendBtnLoader" class="loader" style="display: none"></span>
+              </button>
+            </div>
+            <div id="message" class="message"></div>
+          </section>
+        </form>
+      </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal" style="display:none">
+      <div class="modal-content">
+        <button type="button" class="modal-close" id="closePreview">×</button>
+        <h2>Email Preview</h2>
+        <p class="modal-description">Preview how your email will look</p>
+        <iframe id="previewFrame" class="preview-frame" title="Email preview"></iframe>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
